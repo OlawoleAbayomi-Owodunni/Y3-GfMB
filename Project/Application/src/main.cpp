@@ -55,8 +55,15 @@ enum P_COLS {
 	int lastColour = activeColour;
 	Color showColour = RED;
 
+	int startC = 0;
+	int startR = 0;
+	int endC = 0;
+	int endR = 0;
+
 	bool canDraw = true;
 	bool canPick = false;
+	bool isRectTool = false;
+	bool isCursorTool = false;
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
@@ -174,6 +181,40 @@ void application() {
 			}
 		}
 	}
+	if (isRectTool || isCursorTool) {
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			startR = 0;
+			startC = 0;
+			Vector2 mousePos = GetMousePosition();
+			for (int r = 0; r < TOTAL_ROWS; r++) {
+				for (int c = 0; c < TOTAL_COLS; c++) {
+					if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+						startR = r;
+						startC = c;
+					}
+				}
+			}
+
+		}
+
+		if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+			Vector2 mousePos = GetMousePosition();
+			for (int r = 0; r < TOTAL_ROWS; r++) {
+				for (int c = 0; c < TOTAL_COLS; c++) {
+					if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+						endR = r;
+						endC = c;
+						for (int r = startR; r <= endR; r++) {
+							for (int c = startC; c <= endC; c++) {
+								intGrid[r][c] = activeColour;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
 
 	//colour palette logic
 	for (int i = 0; i < 3; i++) {
@@ -245,25 +286,36 @@ void application() {
 
 	//Mode switcher
 	if (GuiButton(brushButton, "")) {
+		canDraw = true;
+		isRectTool = false;
 		canPick = false;
 		activeColour = lastColour;
-		canDraw = true;
 	}
 	GuiDrawIcon(ICON_BRUSH_CLASSIC, brushButton.x + 10, brushButton.y + 10, 5, WHITE);
 
 	if (GuiButton(eraseButton, "")) {
+		canDraw = true;
+		isRectTool = false;
 		canPick = false;
 		activeColour = NONE;
-		canDraw = true;
 	}
 	GuiDrawIcon(ICON_CROSS, eraseButton.x + 10, eraseButton.y + 10, 5, WHITE);
 
 
-	if (GuiButton(pickerButton, "")) {
+	if (GuiButton(shapeButton, "")) {
+		isRectTool = true;
+		canPick = false;
 		canDraw = false;
+	}
+	GuiDrawIcon(ICON_BOX, shapeButton.x + 10, shapeButton.y + 10, 5, WHITE);
+
+	if (GuiButton(pickerButton, "")) {
 		canPick = true;
+		canDraw = false;
+		isRectTool = false;
 	}
 	GuiDrawIcon(ICON_COLOR_PICKER, pickerButton.x + 10, pickerButton.y + 10, 5, WHITE);
+
 
 	//Saving and loading
 	if (GuiButton({ 1000,600,200,50 }, "-> SAVE <-")) {
