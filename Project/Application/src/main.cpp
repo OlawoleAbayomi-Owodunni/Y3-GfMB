@@ -95,6 +95,38 @@ void application() {
 	ClearBackground(BLACK);
 
 	//input handling
+	if (IsKeyPressed(KEY_ZERO)) {
+		activeColour = NONE;
+	}
+	else if (IsKeyPressed(KEY_ONE)) {
+		activeColour = pRED;
+	}
+	else if (IsKeyPressed(KEY_TWO)) {
+		activeColour = pORANGE;
+	}
+	else if (IsKeyPressed(KEY_THREE)) {
+		activeColour = pYELLOW;
+	}
+	else if (IsKeyPressed(KEY_FOUR)) {
+		activeColour = pGREEN;
+	}
+	else if (IsKeyPressed(KEY_FIVE)) {
+		activeColour = pBLUE;
+	}
+	else if (IsKeyPressed(KEY_SIX)) {
+		activeColour = pINDIGO;
+	}
+	else if (IsKeyPressed(KEY_SEVEN)) {
+		activeColour = pVIOLET;
+	}
+	else if (IsKeyPressed(KEY_EIGHT)) {
+		activeColour = pWHITE;
+	}
+	else if (IsKeyPressed(KEY_NINE)) {
+		activeColour = pBLACK;
+	}
+
+	
 	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
 		Vector2 mousePos = GetMousePosition();
 		for (int r = 0; r < TOTAL_ROWS; r++) {
@@ -105,6 +137,7 @@ void application() {
 			}
 		}
 	}
+
 
 	//grid data manipulation
 	for (int row = 0; row < TOTAL_ROWS; row++) {
