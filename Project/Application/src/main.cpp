@@ -55,7 +55,8 @@ enum P_COLS {
 	int lastColour = activeColour;
 	Color showColour = RED;
 
-	bool canDraw = false;
+	bool canDraw = true;
+	bool canPick = false;
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
@@ -108,12 +109,67 @@ void application() {
 	ClearBackground(BLACK);
 
 	//input handling
-	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && canDraw) {
-		Vector2 mousePos = GetMousePosition();
-		for (int r = 0; r < TOTAL_ROWS; r++) {
-			for (int c = 0; c < TOTAL_COLS; c++) {
-				if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
-					intGrid[r][c] = activeColour;
+	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+		if (canDraw) {	//drawing functionality
+			Vector2 mousePos = GetMousePosition();
+			for (int r = 0; r < TOTAL_ROWS; r++) {
+				for (int c = 0; c < TOTAL_COLS; c++) {
+					if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+						intGrid[r][c] = activeColour;
+					}
+				}
+			}
+		}
+
+		else if (canPick) {	//colour picking functionality
+			Vector2 mousePos = GetMousePosition();
+			for (int r = 0; r < TOTAL_ROWS; r++) {
+				for (int c = 0; c < TOTAL_COLS; c++) {
+					if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+						switch (intGrid[r][c]) {
+						case 0:
+							activeColour = NONE;
+							showColour = GRAY;
+							break;
+						case 1:
+							activeColour = pRED;
+							showColour = RED;
+							break;
+						case 2:
+							activeColour = pORANGE;
+							showColour = ORANGE;
+							break;
+						case 3:
+							activeColour = pYELLOW;
+							showColour = YELLOW;
+							break;
+						case 4:
+							activeColour = pGREEN;
+							showColour = GREEN;
+							break;
+						case 5:
+							activeColour = pBLUE;
+							showColour = BLUE;
+							break;
+						case 6:
+							activeColour = pINDIGO;
+							showColour = DARKBLUE;
+							break;
+						case 7:
+							activeColour = pVIOLET;
+							showColour = PURPLE;
+							break;
+						case 8:
+							activeColour = pWHITE;
+							showColour = WHITE;
+							break;
+						case 9:
+							activeColour = pBLACK;
+							showColour = BLACK;
+							break;
+						}
+					}
+					lastColour = activeColour;
 				}
 			}
 		}
@@ -189,12 +245,14 @@ void application() {
 
 	//Mode switcher
 	if (GuiButton(brushButton, "")) {
+		canPick = false;
 		activeColour = lastColour;
 		canDraw = true;
 	}
 	GuiDrawIcon(ICON_BRUSH_CLASSIC, brushButton.x + 10, brushButton.y + 10, 5, WHITE);
 
 	if (GuiButton(eraseButton, "")) {
+		canPick = false;
 		activeColour = NONE;
 		canDraw = true;
 	}
@@ -202,16 +260,29 @@ void application() {
 
 
 	if (GuiButton(pickerButton, "")) {
-
+		canDraw = false;
+		canPick = true;
 	}
 	GuiDrawIcon(ICON_COLOR_PICKER, pickerButton.x + 10, pickerButton.y + 10, 5, WHITE);
 
 	//Saving and loading
 	if (GuiButton({ 1000,600,200,50 }, "-> SAVE <-")) {
-
+		FILE* file = fopen("imgData.bin", "wb");
+		if (file != NULL) fwrite(intGrid, sizeof(int), TOTAL_ROWS * TOTAL_COLS, file);
+		else printf("error opening a file to write the data on\n");
+		fclose(file);
 	}
-	if (GuiButton({ 1000,675,200,50 }, "-> LOAD <-")) {
 
+	if (GuiButton({ 1000,675,200,50 }, "-> LOAD <-")) {
+		FILE* file = fopen("imgData.bin", "rb");
+		if (file == NULL) {
+			printf("File to be read is not found...\n");
+			return;
+		}
+		
+		size_t elementsRead = fread(intGrid, sizeof(int), TOTAL_ROWS * TOTAL_COLS, file);
+		if (elementsRead != TOTAL_ROWS * TOTAL_COLS) printf("Error reading data from file\n");
+		fclose(file);
 	}
 }
 
