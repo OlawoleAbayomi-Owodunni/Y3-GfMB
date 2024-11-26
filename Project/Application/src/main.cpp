@@ -22,6 +22,8 @@ enum P_COLS {
 	NONE, pRED, pORANGE, pYELLOW, pGREEN, pBLUE, pINDIGO, pVIOLET, pWHITE, pBLACK
 };
 
+
+
 	//VARIABLES
 	static const int SCREEN_WIDTH = 1280;
 	static const int SCREEN_HEIGHT = 800;
@@ -35,14 +37,25 @@ enum P_COLS {
 	Rectangle pixelGrid[TOTAL_ROWS][TOTAL_COLS] = {};
 
 	Color transparentColor = { 0, 0, 0, 0 };
+	int enumWheel[3][3] = {	{pRED, pORANGE, pYELLOW },
+							{pGREEN, pBLUE, pINDIGO},
+							{pVIOLET, pWHITE, pBLACK} };
+	Color colourWheel[3][3] = {	{RED, ORANGE, YELLOW },
+							{GREEN, BLUE, DARKBLUE},
+							{PURPLE, WHITE, BLACK} };
+	
 
 	Rectangle brushButton = { 40, 100, 100, 100 };
-	Rectangle eraseButton = { 60, 100, 100, 100 };
+	Rectangle eraseButton = { 160, 100, 100, 100 };
 	Rectangle shapeButton = { 40, 250, 100, 100 };
-	Rectangle selctButton = { 60, 250, 100, 100 };
+	Rectangle selctButton = { 160, 250, 100, 100 };
 	Rectangle pickerButton = { 40,300,100,100 };
 
-	int activeColour = P_COLS::pGREEN;
+	int activeColour = P_COLS::pRED;
+	int lastColour = activeColour;
+	Color showColour = RED;
+
+	bool canDraw = false;
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
@@ -95,39 +108,7 @@ void application() {
 	ClearBackground(BLACK);
 
 	//input handling
-	if (IsKeyPressed(KEY_ZERO)) {
-		activeColour = NONE;
-	}
-	else if (IsKeyPressed(KEY_ONE)) {
-		activeColour = pRED;
-	}
-	else if (IsKeyPressed(KEY_TWO)) {
-		activeColour = pORANGE;
-	}
-	else if (IsKeyPressed(KEY_THREE)) {
-		activeColour = pYELLOW;
-	}
-	else if (IsKeyPressed(KEY_FOUR)) {
-		activeColour = pGREEN;
-	}
-	else if (IsKeyPressed(KEY_FIVE)) {
-		activeColour = pBLUE;
-	}
-	else if (IsKeyPressed(KEY_SIX)) {
-		activeColour = pINDIGO;
-	}
-	else if (IsKeyPressed(KEY_SEVEN)) {
-		activeColour = pVIOLET;
-	}
-	else if (IsKeyPressed(KEY_EIGHT)) {
-		activeColour = pWHITE;
-	}
-	else if (IsKeyPressed(KEY_NINE)) {
-		activeColour = pBLACK;
-	}
-
-	
-	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && canDraw) {
 		Vector2 mousePos = GetMousePosition();
 		for (int r = 0; r < TOTAL_ROWS; r++) {
 			for (int c = 0; c < TOTAL_COLS; c++) {
@@ -138,6 +119,22 @@ void application() {
 		}
 	}
 
+	//colour picker
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			Rectangle button = { 1010 + (j * 60),300 + (i * 60),50,50 };
+			if (GuiButton(button, "")) {
+				activeColour = enumWheel[i][j];
+				lastColour = activeColour;
+				showColour = colourWheel[i][j];
+			}
+			DrawRectangleRec(button, colourWheel[i][j]);
+			DrawRectangleLinesEx(button, 1.0f, WHITE);
+		}
+	}
+	DrawRectangle(1050, 200, 100, 50, showColour);
+	DrawRectangleLinesEx({1050,200,100,50}, 1.0f, WHITE);
+
 
 	//grid data manipulation
 	for (int row = 0; row < TOTAL_ROWS; row++) {
@@ -146,11 +143,11 @@ void application() {
 			if (intGrid[row][col] == 0) {	//transparent cells
 				if (row % 2 == 0) {
 					if (col % 2 == 0) DrawRectangleRec(pixelGrid[row][col], GRAY);
-					else DrawRectangleRec(pixelGrid[row][col], BLACK);
+					else DrawRectangleRec(pixelGrid[row][col], WHITE);
 				}
 				else {
 					if (col % 2 == 1) DrawRectangleRec(pixelGrid[row][col], GRAY);
-					else DrawRectangleRec(pixelGrid[row][col], BLACK);
+					else DrawRectangleRec(pixelGrid[row][col], WHITE);
 				}
 			}
 
@@ -174,15 +171,22 @@ void application() {
 				DrawRectangleRec(pixelGrid[row][col], pixelColour);
 
 			}
-			DrawRectangleLinesEx(pixelGrid[row][col], 1.0f, WHITE);
+			DrawRectangleLinesEx(pixelGrid[row][col], 1.0f, BLACK);
 		}
 	}
 
 	//Mode switcher
 	if (GuiButton(brushButton, "")) {
-
+		activeColour = lastColour;
+		canDraw = true;
 	}
 	GuiDrawIcon(ICON_BRUSH_CLASSIC, brushButton.x + 10, brushButton.y + 10, 5, WHITE);
+
+	if (GuiButton(eraseButton, "")) {
+		activeColour = NONE;
+		canDraw = true;
+	}
+	GuiDrawIcon(ICON_CROSS, eraseButton.x + 10, eraseButton.y + 10, 5, WHITE);
 
 	//Saving and loading
 	if (GuiButton({ 1000,600,200,50 }, "-> SAVE <-")) {
