@@ -26,60 +26,60 @@ enum P_COLS {
 
 
 
-	//VARIABLES
-	static const int SCREEN_WIDTH = 1280;
-	static const int SCREEN_HEIGHT = 800;
-	const int CANVAS_WIDTH = 600;
-	const int CANVAS_HEIGHT = 600;
-	const int CELL_SIZE = 25;
-	const int TOTAL_COLS = CANVAS_WIDTH / CELL_SIZE;
-	const int TOTAL_ROWS = CANVAS_HEIGHT / CELL_SIZE;
+//VARIABLES
+static const int SCREEN_WIDTH = 1280;
+static const int SCREEN_HEIGHT = 800;
+const int CANVAS_WIDTH = 600;
+const int CANVAS_HEIGHT = 600;
+const int CELL_SIZE = 50;
+const int TOTAL_COLS = CANVAS_WIDTH / CELL_SIZE;
+const int TOTAL_ROWS = CANVAS_HEIGHT / CELL_SIZE;
 
-	int intGrid[TOTAL_ROWS][TOTAL_COLS] = {};
-	Rectangle pixelGrid[TOTAL_ROWS][TOTAL_COLS] = {};
+int intGrid[TOTAL_ROWS][TOTAL_COLS] = {};
+Rectangle pixelGrid[TOTAL_ROWS][TOTAL_COLS] = {};
 
-	Color transparentColor = { 0, 0, 0, 0 };
-	int enumWheel[3][3] = {	{pRED, pORANGE, pYELLOW },
-							{pGREEN, pBLUE, pINDIGO},
-							{pVIOLET, pWHITE, pBLACK} };
-	Color colourWheel[3][3] = {	{RED, ORANGE, YELLOW },
-							{GREEN, BLUE, DARKBLUE},
-							{PURPLE, WHITE, BLACK} };
-	
+Color transparentColor = { 0, 0, 0, 0 };
+int enumWheel[3][3] = { {pRED, pORANGE, pYELLOW },
+						{pGREEN, pBLUE, pINDIGO},
+						{pVIOLET, pWHITE, pBLACK} };
+Color colourWheel[3][3] = { {RED, ORANGE, YELLOW },
+						{GREEN, BLUE, DARKBLUE},
+						{PURPLE, WHITE, BLACK} };
 
-	Rectangle brushButton = { 40, 100, 100, 100 };
-	Rectangle eraseButton = { 160, 100, 100, 100 };
-	Rectangle shapeButton = { 40, 250, 100, 100 };
-	Rectangle selctButton = { 160, 250, 100, 100 };
-	Rectangle pickerButton = { 40,400,100,100 };
 
-	int activeColour = P_COLS::pRED;
-	int lastColour = activeColour;
-	Color showColour = RED;
+Rectangle brushButton = { 40, 100, 100, 100 };
+Rectangle eraseButton = { 160, 100, 100, 100 };
+Rectangle shapeButton = { 40, 250, 100, 100 };
+Rectangle selctButton = { 160, 250, 100, 100 };
+Rectangle pickerButton = { 40,400,100,100 };
 
-	int startC = 0;
-	int startR = 0;
-	int endC = 0;
-	int endR = 0;
+int activeColour = P_COLS::pRED;
+int lastColour = activeColour;
+Color showColour = RED;
 
-	bool canDraw = true;
-	bool canPick = false;
-	bool isRectTool = false;
-	bool isCursorTool = false;
+int startC = 0;
+int startR = 0;
+int endC = 0;
+int endR = 0;
 
-	bool hasCopied = false;
-	bool hasPasted = false;
-	int rows = 0;
-	int cols = 0;
-	int tempArr[100][100];
+bool canDraw = true;
+bool canPick = false;
+bool isRectTool = false;
+bool isCursorTool = false;
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
+bool hasCopied = false;
+bool hasPasted = false;
+int rows = 0;
+int cols = 0;
+int tempArr[100][100];
 
-int main ()
+// Load a texture from the resources directory
+Texture wabbit = LoadTexture("wabbit_alpha.png");
+
+int main()
 {
 	// Tell the window to use vysnc and work on high DPI displays
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+	SetConfigFlags(FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Olawole's Pixel Editor");
@@ -104,7 +104,7 @@ int main ()
 	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
 	{
 		application();
-;		drawing();
+		;		drawing();
 	}
 
 	// cleanup
@@ -300,19 +300,19 @@ void application() {
 		}
 	}
 	DrawRectangle(1050, 200, 100, 50, showColour);
-	DrawRectangleLinesEx({1050,200,100,50}, 1.0f, WHITE);
+	DrawRectangleLinesEx({ 1050,200,100,50 }, 1.0f, WHITE);
 
 	switch (activeColour) {
-		case NONE:showColour = GRAY; break;
-		case pRED:showColour = RED; break;
-		case pORANGE:showColour = ORANGE; break;
-		case pYELLOW:showColour = YELLOW; break;
-		case pGREEN:showColour = GREEN; break;
-		case pBLUE:showColour = BLUE; break;
-		case pINDIGO:showColour = DARKBLUE; break;
-		case pVIOLET:showColour = PURPLE; break;
-		case pWHITE:showColour = WHITE; break;
-		case pBLACK:showColour = BLACK; break;
+	case NONE:showColour = GRAY; break;
+	case pRED:showColour = RED; break;
+	case pORANGE:showColour = ORANGE; break;
+	case pYELLOW:showColour = YELLOW; break;
+	case pGREEN:showColour = GREEN; break;
+	case pBLUE:showColour = BLUE; break;
+	case pINDIGO:showColour = DARKBLUE; break;
+	case pVIOLET:showColour = PURPLE; break;
+	case pWHITE:showColour = WHITE; break;
+	case pBLACK:showColour = BLACK; break;
 	}
 
 	//grid data manipulation
@@ -334,17 +334,17 @@ void application() {
 				Color pixelColour;
 
 				switch (intGrid[row][col]) {
-					case 1:pixelColour = RED; break;
-					case 2:pixelColour = ORANGE; break;
-					case 3:pixelColour = YELLOW; break;
-					case 4:pixelColour = GREEN; break;
-					case 5:pixelColour = BLUE; break;
-					case 6:pixelColour = DARKBLUE; break;
-					case 7:pixelColour = PURPLE; break;
-					case 8:pixelColour = WHITE; break;
-					case 9:pixelColour = BLACK; break;
-				
-					default:pixelColour = MAGENTA; break;
+				case 1:pixelColour = RED; break;
+				case 2:pixelColour = ORANGE; break;
+				case 3:pixelColour = YELLOW; break;
+				case 4:pixelColour = GREEN; break;
+				case 5:pixelColour = BLUE; break;
+				case 6:pixelColour = DARKBLUE; break;
+				case 7:pixelColour = PURPLE; break;
+				case 8:pixelColour = WHITE; break;
+				case 9:pixelColour = BLACK; break;
+
+				default:pixelColour = MAGENTA; break;
 				}
 
 				DrawRectangleRec(pixelGrid[row][col], pixelColour);
@@ -371,14 +371,14 @@ void application() {
 		isCursorTool = false;
 		activeColour = NONE;
 	}
-	GuiDrawIcon(ICON_CROSS, eraseButton.x + 10, eraseButton.y + 10, 5, WHITE);
+	GuiDrawIcon(ICON_RUBBER, eraseButton.x + 10, eraseButton.y + 10, 5, WHITE);
 
 	if (GuiButton(selctButton, "")) {
 		isCursorTool = true;
 		canDraw = false;
 		isRectTool = false;
 		canPick = false;
-		
+
 		hasCopied = false;
 		hasPasted = false;
 	}
@@ -415,7 +415,7 @@ void application() {
 			printf("File to be read is not found...\n");
 			return;
 		}
-		
+
 		size_t elementsRead = fread(intGrid, sizeof(int), TOTAL_ROWS * TOTAL_COLS, file);
 		if (elementsRead != TOTAL_ROWS * TOTAL_COLS) printf("Error reading data from file\n");
 		fclose(file);
@@ -426,9 +426,9 @@ void drawing() {
 
 	// draw some text using the default font
 	DrawText("Pixel Editor", 550, 50, 30, WHITE);
-
+	DrawFPS(10, 10);
 	// draw our texture to the screen
-	DrawTexture(wabbit, 400, 200, BLACK);
+	DrawTexture(wabbit, 400, 200, WHITE);
 
 	// end the frame and get ready for the next one  (display frame, poll input, etc...)
 	EndDrawing();
