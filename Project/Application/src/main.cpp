@@ -4,8 +4,11 @@
 #include "stdio.h"
 #include <random>
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 #include "raylib.h"
 #include "raymath.h"
+
 
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
@@ -13,6 +16,11 @@
 
 void application();
 void drawing();
+
+
+enum P_COLS {
+	NONE, pRED, pORANGE, pYELLOW, pGREEN, pBLUE, pINDIGO, pVIOLET, pWHITE, pBLACK
+};
 
 	//VARIABLES
 	static const int SCREEN_WIDTH = 1280;
@@ -22,8 +30,19 @@ void drawing();
 	const int CELL_SIZE = 25;
 	const int TOTAL_COLS = CANVAS_WIDTH / CELL_SIZE;
 	const int TOTAL_ROWS = CANVAS_HEIGHT / CELL_SIZE;
-	int transGrid[TOTAL_ROWS][TOTAL_COLS] = {};
-	int pixelGrid[TOTAL_ROWS][TOTAL_COLS] = {};
+
+	int intGrid[TOTAL_ROWS][TOTAL_COLS] = {};
+	Rectangle pixelGrid[TOTAL_ROWS][TOTAL_COLS] = {};
+
+	Color transparentColor = { 0, 0, 0, 0 };
+
+	Rectangle brushButton = { 40, 100, 100, 100 };
+	Rectangle eraseButton = { 60, 100, 100, 100 };
+	Rectangle shapeButton = { 40, 250, 100, 100 };
+	Rectangle selctButton = { 60, 250, 100, 100 };
+	Rectangle pickerButton = { 40,300,100,100 };
+
+	int activeColour = P_COLS::pGREEN;
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
@@ -39,16 +58,15 @@ int main ()
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 
+	//Game initialisation
 	for (int row = 0; row < TOTAL_ROWS; row++) {
 		for (int col = 0; col < TOTAL_COLS; col++) {
-			transGrid[row][col] = 0;
-			pixelGrid[row][col] = 0;
-			
-			int x = col * CELL_SIZE;
-			int y = row * CELL_SIZE;
+			intGrid[row][col] = 0;
 
-			if (row % 2 == 0) DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, GRAY);
-			else DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, WHITE);
+			pixelGrid[row][col].x = 350 + (col * CELL_SIZE);
+			pixelGrid[row][col].y = 100 + (row * CELL_SIZE);
+			pixelGrid[row][col].width = CELL_SIZE;
+			pixelGrid[row][col].height = CELL_SIZE;
 		}
 	}
 
@@ -76,21 +94,69 @@ void application() {
 	// Setup the backbuffer for drawing (clear color and depth buffers)
 	ClearBackground(BLACK);
 
+	//input handling
+	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+		Vector2 mousePos = GetMousePosition();
+		for (int r = 0; r < TOTAL_ROWS; r++) {
+			for (int c = 0; c < TOTAL_COLS; c++) {
+				if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+					intGrid[r][c] = activeColour;
+				}
+			}
+		}
+	}
+
+	//grid data manipulation
 	for (int row = 0; row < TOTAL_ROWS; row++) {
 		for (int col = 0; col < TOTAL_COLS; col++) {
 
-			int x = 350 + (col * CELL_SIZE);
-			int y = 100 + (row * CELL_SIZE);
+			if (intGrid[row][col] == 0) {	//transparent cells
+				if (row % 2 == 0) {
+					if (col % 2 == 0) DrawRectangleRec(pixelGrid[row][col], GRAY);
+					else DrawRectangleRec(pixelGrid[row][col], BLACK);
+				}
+				else {
+					if (col % 2 == 1) DrawRectangleRec(pixelGrid[row][col], GRAY);
+					else DrawRectangleRec(pixelGrid[row][col], BLACK);
+				}
+			}
 
-			if (row % 2 == 0) {
-				if (col % 2 == 0) DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, GRAY);
-				else DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, BLACK);
+			else if (intGrid[row][col] > 0 && intGrid[row][col] < 10) { //cells that contain an active colour
+				Color pixelColour;
+
+				switch (intGrid[row][col]) {
+					case 1:pixelColour = RED; break;
+					case 2:pixelColour = ORANGE; break;
+					case 3:pixelColour = YELLOW; break;
+					case 4:pixelColour = GREEN; break;
+					case 5:pixelColour = BLUE; break;
+					case 6:pixelColour = DARKBLUE; break;
+					case 7:pixelColour = PURPLE; break;
+					case 8:pixelColour = WHITE; break;
+					case 9:pixelColour = BLACK; break;
+				
+					default:pixelColour = MAGENTA; break;
+				}
+
+				DrawRectangleRec(pixelGrid[row][col], pixelColour);
+
 			}
-			else {
-				if (col % 2 == 1) DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, GRAY);
-				else DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, BLACK);
-			}
+			DrawRectangleLinesEx(pixelGrid[row][col], 1.0f, WHITE);
 		}
+	}
+
+	//Mode switcher
+	if (GuiButton(brushButton, "")) {
+
+	}
+	GuiDrawIcon(ICON_BRUSH_CLASSIC, brushButton.x + 10, brushButton.y + 10, 5, WHITE);
+
+	//Saving and loading
+	if (GuiButton({ 1000,600,200,50 }, "-> SAVE <-")) {
+
+	}
+	if (GuiButton({ 1000,675,200,50 }, "-> LOAD <-")) {
+
 	}
 }
 
