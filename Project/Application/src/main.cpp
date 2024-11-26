@@ -1,6 +1,7 @@
 //OLAWOLE ABAYOMI-OWODUNNI
 //C00278711
 
+#include <iostream>
 #include "stdio.h"
 #include <random>
 
@@ -13,6 +14,7 @@
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
 #include <cmath>
+#include <vector>
 
 void application();
 void drawing();
@@ -64,6 +66,12 @@ enum P_COLS {
 	bool canPick = false;
 	bool isRectTool = false;
 	bool isCursorTool = false;
+
+	bool hasCopied = false;
+	bool hasPasted = false;
+	int rows = 0;
+	int cols = 0;
+	int tempArr[100][100];
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
@@ -181,7 +189,8 @@ void application() {
 			}
 		}
 	}
-	if (isRectTool || isCursorTool) {
+
+	if (isRectTool) {
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			startR = 0;
 			startC = 0;
@@ -214,6 +223,67 @@ void application() {
 				}
 			}
 		}
+	}
+
+
+	if (isCursorTool) {
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			startR = 0;
+			startC = 0;
+			Vector2 mousePos = GetMousePosition();
+			for (int r = 0; r < TOTAL_ROWS; r++) {
+				for (int c = 0; c < TOTAL_COLS; c++) {
+					if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+						startR = r;
+						startC = c;
+					}
+				}
+			}
+
+		}
+
+		if (IsKeyPressed(KEY_C)) {
+			hasCopied = true;
+			hasPasted = false;
+		}
+		if (IsKeyPressed(KEY_V)) {
+			hasPasted = true;
+			hasCopied = false;
+
+			for (int r = startR, i = 0; r <= startR + rows; r++, i++) {
+				for (int c = startC, j = 0; c <= startC + cols; c++, j++) {
+					intGrid[r][c] = tempArr[i][j];
+				}
+			}
+		}
+
+
+		if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+			Vector2 mousePos = GetMousePosition();
+			for (int r = 0; r < TOTAL_ROWS; r++) {
+				for (int c = 0; c < TOTAL_COLS; c++) {
+					if (CheckCollisionPointRec(mousePos, pixelGrid[r][c])) {
+						endR = r;
+						endC = c;
+
+						if (!hasCopied) {
+							rows = endR - startR;
+							cols = endC - startC;
+						}
+
+						for (int i = 0, r = startR; r <= endR; r++, i++) {
+							for (int j = 0, c = startC; c <= endC; c++, j++) {
+								tempArr[i][j] = intGrid[r][c];
+							}
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+
 	}
 
 	//colour palette logic
@@ -289,6 +359,7 @@ void application() {
 		canDraw = true;
 		isRectTool = false;
 		canPick = false;
+		isCursorTool = false;
 		activeColour = lastColour;
 	}
 	GuiDrawIcon(ICON_BRUSH_CLASSIC, brushButton.x + 10, brushButton.y + 10, 5, WHITE);
@@ -297,15 +368,27 @@ void application() {
 		canDraw = true;
 		isRectTool = false;
 		canPick = false;
+		isCursorTool = false;
 		activeColour = NONE;
 	}
 	GuiDrawIcon(ICON_CROSS, eraseButton.x + 10, eraseButton.y + 10, 5, WHITE);
 
+	if (GuiButton(selctButton, "")) {
+		isCursorTool = true;
+		canDraw = false;
+		isRectTool = false;
+		canPick = false;
+		
+		hasCopied = false;
+		hasPasted = false;
+	}
+	GuiDrawIcon(ICON_CURSOR_CLASSIC, selctButton.x + 10, selctButton.y + 10, 5, WHITE);
 
 	if (GuiButton(shapeButton, "")) {
 		isRectTool = true;
 		canPick = false;
 		canDraw = false;
+		isCursorTool = false;
 	}
 	GuiDrawIcon(ICON_BOX, shapeButton.x + 10, shapeButton.y + 10, 5, WHITE);
 
@@ -313,6 +396,7 @@ void application() {
 		canPick = true;
 		canDraw = false;
 		isRectTool = false;
+		isCursorTool = false;
 	}
 	GuiDrawIcon(ICON_COLOR_PICKER, pickerButton.x + 10, pickerButton.y + 10, 5, WHITE);
 
