@@ -49,7 +49,7 @@ enum P_COLS {
 	Rectangle eraseButton = { 160, 100, 100, 100 };
 	Rectangle shapeButton = { 40, 250, 100, 100 };
 	Rectangle selctButton = { 160, 250, 100, 100 };
-	Rectangle pickerButton = { 40,300,100,100 };
+	Rectangle pickerButton = { 40,400,100,100 };
 
 	int activeColour = P_COLS::pRED;
 	int lastColour = activeColour;
@@ -119,7 +119,7 @@ void application() {
 		}
 	}
 
-	//colour picker
+	//colour palette logic
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			Rectangle button = { 1010 + (j * 60),300 + (i * 60),50,50 };
@@ -135,6 +135,18 @@ void application() {
 	DrawRectangle(1050, 200, 100, 50, showColour);
 	DrawRectangleLinesEx({1050,200,100,50}, 1.0f, WHITE);
 
+	switch (activeColour) {
+		case NONE:showColour = GRAY; break;
+		case pRED:showColour = RED; break;
+		case pORANGE:showColour = ORANGE; break;
+		case pYELLOW:showColour = YELLOW; break;
+		case pGREEN:showColour = GREEN; break;
+		case pBLUE:showColour = BLUE; break;
+		case pINDIGO:showColour = DARKBLUE; break;
+		case pVIOLET:showColour = PURPLE; break;
+		case pWHITE:showColour = WHITE; break;
+		case pBLACK:showColour = BLACK; break;
+	}
 
 	//grid data manipulation
 	for (int row = 0; row < TOTAL_ROWS; row++) {
@@ -187,6 +199,12 @@ void application() {
 		canDraw = true;
 	}
 	GuiDrawIcon(ICON_CROSS, eraseButton.x + 10, eraseButton.y + 10, 5, WHITE);
+
+
+	if (GuiButton(pickerButton, "")) {
+
+	}
+	GuiDrawIcon(ICON_COLOR_PICKER, pickerButton.x + 10, pickerButton.y + 10, 5, WHITE);
 
 	//Saving and loading
 	if (GuiButton({ 1000,600,200,50 }, "-> SAVE <-")) {
